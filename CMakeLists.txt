@@ -13,6 +13,7 @@ add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME}
     PRIVATE
         src/main.cpp
+        src/Game.hpp src/Game.cpp
 )
 
 target_compile_options(${PROJECT_NAME}
