@@ -2,6 +2,7 @@
 #include <Game.hpp>
 #include <SDL_events.h>
 #include <SDL_video.h>
+#include <SDL2/SDL_image.h>
 
 SDL_Renderer *Game::renderer_ = nullptr;
 bool Game::exiting_ = false;
@@ -40,5 +41,10 @@ void Game::loop(){
     }
 
     SDL_RenderClear(renderer_);
+
+    SDL_Texture* brick1 = IMG_LoadTexture(renderer_, "../assets/patches/brick1.png");
+    SDL_Rect rect = { (640 - 320) / 2, (480 - 320) / 2, 320, 320 };
+    SDL_RenderCopy(renderer_, brick1, NULL, &rect);
+
     SDL_RenderPresent(renderer_);
 }
