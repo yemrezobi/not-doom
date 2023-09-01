@@ -6,7 +6,8 @@ int main(int argc, char *argv[])
     (void)argc;
     (void)argv;
 
-    Game::start();
+    auto game = Game();
+    game.start();
 
     return 0;
 }

@@ -15,6 +15,12 @@ target_sources(${PROJECT_NAME}
     PRIVATE
         src/main.cpp
         src/Game.hpp src/Game.cpp
+        src/GraphicsComponent.hpp src/GraphicsComponent.cpp
+        src/PhysicsComponent.hpp src/PhysicsComponent.cpp
+        src/Vec2.hpp src/Vec2.cpp
+        src/Vec3.hpp src/Vec3.cpp
+        src/Player.hpp src/Player.cpp
+        src/Camera.hpp src/Camera.cpp
 )
 
 target_compile_options(${PROJECT_NAME}
