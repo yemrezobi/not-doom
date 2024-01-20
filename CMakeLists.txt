@@ -1,30 +1,48 @@
-cmake_minimum_required(VERSION 3.22.1)
+cmake_minimum_required(VERSION 3.27)
 
 project(not-doom VERSION 1.0.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_DEBUG_POSTFIX d)
 
 add_executable(${PROJECT_NAME})
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/debug
+    DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX}
+)
+
+set(SOURCES
+    src/Game.hpp                    src/Game.cpp
+    src/Doom.hpp                    src/Doom.cpp
+    src/EntityManager.hpp           src/EntityManager.cpp
+    src/ComponentManager.hpp
+    src/ComponentVector.hpp
+    src/PackedArray.hpp
+    src/PhysicsComponent.hpp
+    src/RenderComponent.hpp
+    src/TransformComponent.hpp
+    src/InputManager.hpp            src/InputManager.cpp
+    src/ResourceManager.hpp         src/ResourceManager.cpp
+    src/Vector2.hpp
+    src/Vector3.hpp
+    src/Quaternion.hpp
+    src/LoggingManager.hpp          src/LoggingManager.cpp
+)
 
 target_sources(${PROJECT_NAME}
     PRIVATE
         src/main.cpp
-        src/Game.hpp                    src/Game.cpp
-        src/GraphicsComponent.hpp       src/GraphicsComponent.cpp
-        src/PhysicsComponent.hpp        src/PhysicsComponent.cpp
-        src/Vec2.hpp                    src/Vec2.cpp
-        src/Vec3.hpp                    src/Vec3.cpp
-        src/Player.hpp                  src/Player.cpp
-        src/Camera.hpp                  src/Camera.cpp
+        ${SOURCES}
 )
 
 target_compile_options(${PROJECT_NAME}
     PRIVATE
-        -Werror
-        -Wall
-        -Wextra
-        -Wpedantic
+        "-Werror"
+        "-Wall"
+        "-Wextra"
+        "-Wpedantic"
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -32,53 +50,43 @@ target_include_directories(${PROJECT_NAME}
         src
 )
 
-SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release
-)
-
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
-include_directories(${SDL2_INCLUDE_DIRS})
-
-include(FetchContent)
-FetchContent_Declare(
-    googletest
-    URL https://github.com/google/googletest/archive/f8d7d77c06936315286eb55f8de22cd23c188571.zip
-    DOWNLOAD_EXTRACT_TIMESTAMP FALSE
-)
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
-
+include_directories(${SDL2_INCLUDE_DIRS} SYSTEM)
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
-        ${SDL2_LIBRARIES}
+        SDL2::SDL2
         SDL2_image::SDL2_image
 )
 
+find_package(GTest REQUIRED)
 enable_testing()
-set(TEST_NAME ${PROJECT_NAME}_test)
-add_executable(${TEST_NAME})
-target_sources(${TEST_NAME}
-    PRIVATE
-        tests/Game.test.cpp
-        tests/GraphicsComponent.test.cpp
-        tests/GraphicsComponent.test.cpp
-        tests/Vec2.test.cpp
-        tests/Vec3.test.cpp
-        tests/Player.test.cpp
-        tests/Camera.test.cpp
+
+set(TEST_EXECUTABLE_NAME ${PROJECT_NAME}_test)
+add_executable(${TEST_EXECUTABLE_NAME})
+set_target_properties(${TEST_EXECUTABLE_NAME} PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/test
 )
-target_include_directories(${TEST_NAME}
+
+target_sources(${TEST_EXECUTABLE_NAME}
+    PRIVATE
+        ${SOURCES}
+        tests/ComponentManager.test.cpp
+        tests/EntityManager.test.cpp
+        tests/Quaternion.test.cpp
+)
+
+target_include_directories(${TEST_EXECUTABLE_NAME}
     PRIVATE
         src
 )
-target_link_libraries(${TEST_NAME}
+
+target_link_libraries(${TEST_EXECUTABLE_NAME}
     PRIVATE
+        SDL2::SDL2
+        SDL2_image::SDL2_image
         GTest::gtest_main
+        GTest::gmock_main
 )
-SET_TARGET_PROPERTIES(${TEST_NAME} PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/test
-)
-include(GoogleTest)
-gtest_discover_tests(${TEST_NAME})
+
+gtest_discover_tests(${TEST_EXECUTABLE_NAME})

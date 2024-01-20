@@ -3,13 +3,9 @@ Language:        Cpp
 # BasedOnStyle:  LLVM
 AccessModifierOffset: -4
 AlignAfterOpenBracket: DontAlign
-AlignArrayOfStructures: Right
+AlignArrayOfStructures: None
 AlignConsecutiveAssignments:
-  Enabled:          true
-  AcrossEmptyLines: true
-  AcrossComments:   true
-  AlignCompound:    true
-  PadOperators:     true
+  Enabled:          false
 AlignConsecutiveBitFields:
   Enabled:          true
   AcrossEmptyLines: true
@@ -17,17 +13,9 @@ AlignConsecutiveBitFields:
   AlignCompound:    true
   PadOperators:     true
 AlignConsecutiveDeclarations:
-  Enabled:          true
-  AcrossEmptyLines: true
-  AcrossComments:   true
-  AlignCompound:    true
-  PadOperators:     true
+  Enabled:          false
 AlignConsecutiveMacros:
-  Enabled:          true
-  AcrossEmptyLines: true
-  AcrossComments:   true
-  AlignCompound:    true
-  PadOperators:     true
+  Enabled:          false
 AlignEscapedNewlines: Right
 AlignOperands: DontAlign
 AlignTrailingComments:
@@ -59,7 +47,7 @@ BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: AfterColon
 BreakInheritanceList: AfterColon
 BreakStringLiterals: true
-ColumnLimit: 80
+ColumnLimit: 120
 CommentPragmas: '^ IWYU pragma:'
 CompactNamespaces: false
 ConstructorInitializerIndentWidth: 4
@@ -81,7 +69,7 @@ IncludeIsMainRegex: '(\.test)?$'
 IncludeIsMainSourceRegex: ''
 IndentAccessModifiers: false
 IndentCaseBlocks: false
-IndentCaseLabels: false
+IndentCaseLabels: true
 IndentExternBlock: AfterExternBlock
 IndentGotoLabels: true
 IndentPPDirectives: None

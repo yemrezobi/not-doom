@@ -1,4 +1,4 @@
-#include <Game.hpp>
+#include "Doom.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
     (void)argc;
     (void)argv;
 
-    auto game = Game();
+    Doom game{};
     game.start();
 
     return 0;

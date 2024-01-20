@@ -1,29 +1,43 @@
-#ifndef GAME_H
-#define GAME_H
+#ifndef GAME_HPP
+#define GAME_HPP
 
-#include <SDL.h>
-#include <Player.hpp>
-#include <unordered_map>
-#include <string>
+#include <vector>
+#include <functional>
+#include <stdint.h>
+
+#include <SDL_render.h>
+#include <SDL_video.h>
+
+#include "EntityManager.hpp"
+#include "ResourceManager.hpp"
+#include "InputManager.hpp"
+#include "ComponentManager.hpp"
+#include "LoggingManager.hpp"
 
 class Game {
-    public:
-        Game();
-        ~Game();
-        auto start() -> void;
-        static const std::unordered_map<SDL_Keycode, Player::WalkingDirection> kKeyToDirection;
-    private:
-        auto LoadTexture(std::string texture_name) -> SDL_Texture*;
-        const double kWindowWidth;
-        const double kWindowHeight;
-        SDL_Window *window_;
-        SDL_Renderer *renderer_;
-        Player player_;
-        Camera camera_;
-        std::unordered_map<std::string, SDL_Texture*> textures_;
-        bool exiting_;
-        uint64_t prev_time_;
-        auto loop() -> void;
+public:
+    Game();
+    ~Game();
+    auto start() -> void;
+    const double k_window_width;
+    const double k_window_height;
+
+protected:
+    SDL_Renderer* renderer_;
+    EntityManager entity_manager_;
+    ComponentManager component_manager_;
+    InputManager input_manager_;
+    ResourceManager resource_manager_;
+    std::vector<std::function<void()>> systems_;
+
+private:
+    LoggingManager logger_;
+    SDL_Window* window_;
+    bool exiting_;
+    uint64_t prev_time_;
+
+    virtual auto setup() -> void = 0;
+    auto loop() -> void;
 };
 
-#endif // GAME_H
+#endif // GAME_HPP
