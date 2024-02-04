@@ -22,11 +22,12 @@ public:
     {
     }
 
-    auto static identity() -> Quaternion<T>
+    auto static constexpr identity() -> Quaternion<T>
     {
         return {1, 0, 0, 0};
     }
 
+    // takes angle in radians
     auto static from_axis_angle(const Vector3<T>& axis, T angle) -> Quaternion<T>
     {
         const T sine = std::sin(angle / 2);

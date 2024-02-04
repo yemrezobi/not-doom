@@ -29,7 +29,7 @@ auto ResourceManager::get_texture(std::string texture_name) -> SDL_Texture*
 {
     if (!textures_.contains(texture_name)) [[unlikely]] {
         const std::filesystem::path texture_path = asset_directory_ / "patches" / (texture_name + ".png");
-        textures_[texture_name] = IMG_LoadTexture(renderer_, texture_path.c_str());
+        textures_[texture_name] = IMG_LoadTexture(renderer_, texture_path.string().c_str());
         if (textures_[texture_name] == NULL) {
             if (logger_ != nullptr){
                 logger_->error(std::string("Could not load texture: ").append(SDL_GetError()));

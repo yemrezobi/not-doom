@@ -12,6 +12,10 @@ public:
 
 private:
     int player_id_;
+    struct {
+        double x;
+        double y;
+    } camera_angles_;
     double player_movement_speed;
     LoggingManager logger_;
     struct TesselationResult {
@@ -22,6 +26,9 @@ private:
     };
 
     auto setup() -> void override;
+    auto handle_event_window(const SDL_WindowEvent& event) -> void override;
+    auto handle_event_mouse_motion(const SDL_MouseMotionEvent& event) -> void override;
+    auto handle_event_key(const SDL_KeyboardEvent& event) -> void override;
     auto setup_systems() -> void;
 
     // TODO: move this function somefile more relevant

@@ -1,9 +1,11 @@
-#include "SDL_rect.h"
-#include "SDL_render.h"
+#include <SDL_mouse.h>
+#include <SDL_rect.h>
+#include <SDL_render.h>
 
 #include "Doom.hpp"
 #include "LoggingManager.hpp"
 #include "PhysicsComponent.hpp"
+#include "Quaternion.hpp"
 #include "RenderComponent.hpp"
 #include "TransformComponent.hpp"
 #include "Vector3.hpp"
@@ -22,39 +24,76 @@ auto Doom::setup() -> void
     component_manager_.register_component<PhysicsComponent>();
 
     auto& transform_components = component_manager_.get_components<TransformComponent>();
-    auto& physics_components = component_manager_.get_components<PhysicsComponent>();
     auto& render_components = component_manager_.get_components<RenderComponent>();
+    auto& physics_components = component_manager_.get_components<PhysicsComponent>();
 
-    // initialize player
+    const Quaterniond direction = Quaterniond::identity();
+    // initialize camera
     player_id_ = entity_manager_.create_entity();
-    transform_components.insert_component({player_id_, {}, Quaterniond::identity(), Vector3d::identity()});
+    camera_angles_ = {0, 0};
+    transform_components.insert_component({player_id_, {0, 0, -200}, direction, Vector3d::identity()});
     physics_components.insert_component({player_id_, {}, {}, false});
 
     const int e1 = entity_manager_.create_entity();
-    transform_components.insert_component({e1, {-50 - 128, 50, 100}, {}, Vector3d::identity()});
+    transform_components.insert_component({e1, {-50 - 128, 50, 0}, direction, Vector3d::identity()});
     render_components.insert_component(
-        {e1, RenderComponent::RenderableType::sprite, resource_manager_.get_texture("brick"), 128, 128});
+        {e1, RenderComponent::RenderableType::quad, resource_manager_.get_texture("brick"), 128, 128});
 
     const int e2 = entity_manager_.create_entity();
-    transform_components.insert_component({e2, {50, 50, -100}, Quaterniond::identity(), Vector3d::identity()});
+    transform_components.insert_component({e2, {50, 50, 0}, direction, Vector3d::identity()});
     render_components.insert_component(
-        {e2, RenderComponent::RenderableType::sprite, resource_manager_.get_texture("brick1"), 128, 128});
+        {e2, RenderComponent::RenderableType::quad, resource_manager_.get_texture("brick1"), 128, 128});
 
     const int e3 = entity_manager_.create_entity();
-    transform_components.insert_component(
-        {e3, {-50 - 128, -50 - 128, -100}, Quaterniond::identity(), Vector3d::identity()});
+    transform_components.insert_component({e3, {-50 - 128, -50 - 128, 0}, direction, Vector3d::identity()});
     render_components.insert_component(
-        {e3, RenderComponent::RenderableType::sprite, resource_manager_.get_texture("brick2"), 128, 128});
+        {e3, RenderComponent::RenderableType::quad, resource_manager_.get_texture("brick2"), 128, 128});
 
     const int e4 = entity_manager_.create_entity();
-    transform_components.insert_component({e4, {50, -50 - 128, 100}, Quaterniond::identity(), Vector3d::identity()});
+    transform_components.insert_component({e4, {50, -50 - 128, 0}, direction, Vector3d::identity()});
     render_components.insert_component(
-        {e4, RenderComponent::RenderableType::sprite, resource_manager_.get_texture("wood"), 128, 128});
+        {e4, RenderComponent::RenderableType::quad, resource_manager_.get_texture("wood"), 128, 128});
 
     const int e5 = entity_manager_.create_entity();
-    transform_components.insert_component({e5, {-64, -64, 0}, Quaterniond::identity(), Vector3d::identity()});
+    transform_components.insert_component({e5, {-64, -64, 0}, direction, Vector3d::identity()});
     render_components.insert_component(
         {e5, RenderComponent::RenderableType::quad, resource_manager_.get_texture("aqpanl03"), 128, 128});
+}
+
+auto Doom::handle_event_window(const SDL_WindowEvent& event) -> void
+{
+    switch (event.event) {
+        case SDL_WINDOWEVENT_CLOSE: {
+            logger_.info("Window closing");
+            exiting_ = true;
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+}
+
+auto Doom::handle_event_mouse_motion(const SDL_MouseMotionEvent& event) -> void
+{
+    // how many mouse movement units a full rotation takes
+    constexpr double full_rotation = 50 * 2 * std::numbers::pi;
+    // the mouse rotation around axes in radians
+    camera_angles_.x = std::fmod(camera_angles_.x + event.yrel / full_rotation, 2 * std::numbers::pi);
+    camera_angles_.y = std::fmod(camera_angles_.y + event.xrel / full_rotation, 2 * std::numbers::pi);
+    auto& player_transform = *component_manager_.get_components<TransformComponent>().find_component(player_id_);
+    player_transform.rotation = Quaterniond::from_axis_angle({0, 1, 0}, camera_angles_.y)
+        * Quaterniond::from_axis_angle({1, 0, 0}, camera_angles_.x);
+}
+
+auto Doom::handle_event_key(const SDL_KeyboardEvent& event) -> void
+{
+    const SDL_Scancode key_code = event.keysym.scancode;
+    input_manager_.set_key_state(key_code, event.state);
+    const InputManager::KeyState key_state = input_manager_.get_key_state(event.keysym.scancode);
+    if (key_code == input_manager_.controls.exit_game && key_state.key_down) {
+        exiting_ = true;
+    }
 }
 
 auto Doom::setup_systems() -> void
@@ -69,23 +108,21 @@ auto Doom::process_physics() -> void
     auto& physics_vector = component_manager_.get_components<PhysicsComponent>();
 
     // Add movement speed to player's velocity
-    Vector3d player_direction_vector = input_manager_.player_direction_vector();
-
     auto& player_physics_component = *physics_vector.find_component(player_id_);
-    player_physics_component.velocity += player_direction_vector * player_movement_speed;
+    const Vector3d player_movement_vector = input_manager_.player_movement_vector() * player_movement_speed;
+    player_physics_component.velocity += player_movement_vector;
 
     for (auto& physics_component : physics_vector) {
-        physics_component.velocity += physics_component.acceleration;
+        const Vector3d delta_v = physics_component.acceleration * delta_time_;
         auto& transform_component = *transform_vector.find_component(physics_component.entity_id);
-        transform_component.position += physics_component.velocity;
+        physics_component.velocity += delta_v;
+        transform_component.position += delta_v * delta_time_ / 2;
         // TODO: handle collision
-        if (physics_component.is_affected_by_gravity) {
-            transform_component.position.y -= PhysicsComponent::k_gravity;
-        }
+        transform_component.position.y -= PhysicsComponent::k_gravity * physics_component.is_affected_by_gravity;
     }
 
     // Remove movement speed from player's velocity
-    player_physics_component.velocity += player_direction_vector * -player_movement_speed;
+    player_physics_component.velocity -= player_movement_vector;
 }
 
 auto Doom::process_renders() -> void
@@ -110,15 +147,9 @@ auto Doom::process_renders() -> void
     for (auto& render_component : render_vector) {
         // TODO: handle scale
         auto& transform_component = *transform_vector.find_component(render_component.entity_id);
-        const Vector3d transformed_pos =
-            camera_transform.rotation.inverse().rotate_point(transform_component.position) - camera_transform.position;
-        // don't draw components which are behind camera
-        // TODO: view clipping
-        if (transformed_pos.z >= 0) {
-            continue;
-        }
         switch (render_component.type) {
             case RenderComponent::RenderableType::sprite: {
+                const Vector3d transformed_pos = camera_transform.rotation.inverse().rotate_point(transform_component.position) - camera_transform.position;
                 const SDL_FRect rect{static_cast<float>(transformed_pos.x + k_window_width / 2),
                     static_cast<float>(transformed_pos.y + k_window_height / 2),
                     static_cast<float>(render_component.width), static_cast<float>(render_component.height)};
@@ -126,19 +157,16 @@ auto Doom::process_renders() -> void
                 break;
             }
             case RenderComponent::RenderableType::quad: {
-                const Vector3d& vec1 = transformed_pos;
-                const Vector3d vec2 =
-                    camera_transform.rotation.inverse().rotate_point(transform_component.rotation.rotate_point(
-                        transform_component.position + Vector3d{render_component.width, 0, 0}))
-                    - camera_transform.position;
-                const Vector3d vec3 =
-                    camera_transform.rotation.inverse().rotate_point(transform_component.rotation.rotate_point(
-                        transform_component.position + Vector3d{-50, render_component.height, 0}))
-                    - camera_transform.position;
-                const Vector3d vec4 = camera_transform.rotation.inverse().rotate_point(
-                                          transform_component.rotation.rotate_point(transform_component.position
-                                              + Vector3d{render_component.width + 50, render_component.height, 0}))
-                    - camera_transform.position;
+                const Quaterniond total_rotation = camera_transform.rotation.inverse() * transform_component.rotation;
+                const Vector3d translated_position = transform_component.position - camera_transform.position;
+                // top left
+                const Vector3d vec1 = total_rotation.rotate_point(translated_position);
+                // top right
+                const Vector3d vec2 = total_rotation.rotate_point(translated_position + Vector3d{render_component.width, 0, 0});
+                // bot left
+                const Vector3d vec3 = total_rotation.rotate_point(translated_position + Vector3d{0, render_component.height, 0});
+                // bot right
+                const Vector3d vec4 = total_rotation.rotate_point(translated_position + Vector3d{render_component.width, render_component.height, 0});
                 const Vector2d v1{vec1.x + k_window_width / 2, vec1.y + k_window_height / 2};
                 const Vector2d v2{vec2.x + k_window_width / 2, vec2.y + k_window_height / 2};
                 const Vector2d v3{vec3.x + k_window_width / 2, vec3.y + k_window_height / 2};
@@ -161,12 +189,12 @@ auto Doom::process_renders() -> void
 
     // TODO: delet this
     // draw makeshift crosshairs
-    //if (SDL_SetRenderDrawColor(renderer_, 0, 0, 255, SDL_ALPHA_OPAQUE)) {
+    // if (SDL_SetRenderDrawColor(renderer_, 0, 0, 255, SDL_ALPHA_OPAQUE)) {
     //    logger_.error(std::string("Could not set render draw color: ").append(SDL_GetError()));
     //}
-    //SDL_RenderDrawLine(renderer_, static_cast<int>(k_window_width / 2) - 50, static_cast<int>(k_window_height / 2),
+    // SDL_RenderDrawLine(renderer_, static_cast<int>(k_window_width / 2) - 50, static_cast<int>(k_window_height / 2),
     //    static_cast<int>(k_window_width / 2) + 50, static_cast<int>(k_window_height / 2));
-    //SDL_RenderDrawLine(renderer_, static_cast<int>(k_window_width / 2), static_cast<int>(k_window_height / 2) - 50,
+    // SDL_RenderDrawLine(renderer_, static_cast<int>(k_window_width / 2), static_cast<int>(k_window_height / 2) - 50,
     //    static_cast<int>(k_window_width / 2), static_cast<int>(k_window_height / 2) + 50);
 
     SDL_RenderPresent(renderer_);

@@ -37,13 +37,28 @@ target_sources(${PROJECT_NAME}
         ${SOURCES}
 )
 
-target_compile_options(${PROJECT_NAME}
-    PRIVATE
-        "-Werror"
-        "-Wall"
-        "-Wextra"
-        "-Wpedantic"
-)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(${PROJECT_NAME}
+        PRIVATE
+            "-Werror"
+            "-Wall"
+            "-Wextra"
+            "-Wpedantic")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(${PROJECT_NAME}
+        PRIVATE
+            "-Werror"
+            "-Wall"
+            "-Wextra"
+            "-Wpedantic"
+    )
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MCSVC")
+    target_compile_options(${PROJECT_NAME}
+        PRIVATE
+            "/Wall"
+            "/WX"
+    )
+endif()
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE

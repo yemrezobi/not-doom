@@ -1,32 +1,51 @@
 #ifndef INPUTMANAGER_HPP
 #define INPUTMANAGER_HPP
 
+#include <unordered_map>
+
 #include <SDL_scancode.h>
 
 #include "Vector3.hpp"
 
 class InputManager {
 public:
-    InputManager() noexcept;
     // 1 for true, 0 for false
     // makes calculating direction vector easier
     struct PlayerDirections {
-        int Forward;
-        int Left;
-        int Backward;
-        int Right;
+        int forward;
+        int left;
+        int backward;
+        int right;
     };
-    auto player_direction_vector() const -> Vector3d;
+
+    struct KeyState {
+        // whether the key is currently pressed
+        bool is_pressed = false;
+        // whether the key became pressed this frame
+        bool key_down = false;
+        // whether the key became released this frame
+        bool key_up = false;
+    };
+
+    // clang-format off
+    struct {
+        SDL_Scancode walk_forward = SDL_SCANCODE_W;
+        SDL_Scancode walk_left = SDL_SCANCODE_A;
+        SDL_Scancode walk_backward = SDL_SCANCODE_S;
+        SDL_Scancode walk_right = SDL_SCANCODE_D;
+        SDL_Scancode jump = SDL_SCANCODE_SPACE;
+        SDL_Scancode crouch = SDL_SCANCODE_LCTRL;
+        SDL_Scancode exit_game = SDL_SCANCODE_ESCAPE;
+    } controls;
+    // clang-format on
+
+    auto get_key_state(SDL_Scancode key_code) -> KeyState&;
+    auto set_key_state(SDL_Scancode key_code, bool state) -> void;
+    auto player_movement_vector() -> const Vector3d;
+
 private:
-    const struct {
-        SDL_Scancode WalkForward = SDL_SCANCODE_W;
-        SDL_Scancode WalkLeft = SDL_SCANCODE_A;
-        SDL_Scancode WalkBackward = SDL_SCANCODE_S;
-        SDL_Scancode WalkRight = SDL_SCANCODE_D;
-        SDL_Scancode Jump = SDL_SCANCODE_SPACE;
-        SDL_Scancode Crouch = SDL_SCANCODE_LCTRL;
-    } controls_;
-    auto player_direction_states() const -> PlayerDirections;
+    std::unordered_map<SDL_Scancode, KeyState> key_states_;
+    auto player_movement_states() -> const PlayerDirections;
 };
 
 #endif // INPUTMANAGER_HPP
