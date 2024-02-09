@@ -16,7 +16,7 @@ public:
         debug = 4
     };
 
-    LoggingManager(LogLevel log_level);
+    explicit LoggingManager(LogLevel log_level);
 
     auto to_console() -> bool;
     auto to_file(const std::filesystem::path& filepath) -> bool;

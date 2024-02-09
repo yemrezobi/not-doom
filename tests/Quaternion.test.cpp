@@ -1,15 +1,17 @@
-#include <numbers>
+#include <cmath>
 #include <format>
+#include <numbers>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
 #include "Quaternion.hpp"
+#include "Vector3.hpp"
 
 bool almost_equals(double a, double b)
 {
     constexpr double epsilon = 0.001;
-    return std::abs(a - b) < epsilon;
+    return std::fabs(a - b) < epsilon;
 }
 
 MATCHER_P(QuaterniondEq, q, std::format("is{} equal to {{{}, {}, {}, {}}}", negation ? " not" : "", q.w, q.x, q.y, q.z)) {

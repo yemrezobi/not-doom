@@ -1,17 +1,17 @@
 #ifndef RESOURCEMANAGER_HPP
 #define RESOURCEMANAGER_HPP
 
+#include <filesystem>
 #include <string>
 #include <unordered_map>
-#include <filesystem>
 
 #include <SDL_render.h>
 
-#include "LoggingManager.hpp"
+class LoggingManager;
 
 class ResourceManager {
 public:
-    ResourceManager(const std::filesystem::path& asset_directory);
+    explicit ResourceManager(const std::filesystem::path& asset_directory);
     ~ResourceManager();
 
 

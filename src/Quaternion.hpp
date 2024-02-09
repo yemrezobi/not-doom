@@ -49,8 +49,8 @@ public:
 
     auto inverse() const -> Quaternion<T>
     {
-        const Quaternion<T> normalized = this->normalized();
-        return {this->w, -normalized.x, -normalized.y, -normalized.z};
+        const Quaternion<T> temp = this->normalized();
+        return {this->w, -temp.x, -temp.y, -temp.z};
     }
 
     auto dot(const Quaternion<T>& rhs) const -> T
@@ -119,11 +119,11 @@ public:
         const T y2 = rhs.y;
         const T z2 = rhs.z;
 
-        const T w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2;
-        const T x = w1 * x2 + w2 * x1 + y1 * z2 - z1 * y2;
-        const T y = w1 * y2 + w2 * y1 + z1 * x2 - x1 * z2;
-        const T z = w1 * z2 + w2 * z1 + x1 * y2 - y1 * x2;
-        return {w, x, y, z};
+        const T wres = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2;
+        const T xres = w1 * x2 + w2 * x1 + y1 * z2 - z1 * y2;
+        const T yres = w1 * y2 + w2 * y1 + z1 * x2 - x1 * z2;
+        const T zres = w1 * z2 + w2 * z1 + x1 * y2 - y1 * x2;
+        return {wres, xres, yres, zres};
     }
 
     auto operator*=(const Quaternion<T>& rhs) -> Quaternion<T>&

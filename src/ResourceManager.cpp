@@ -1,10 +1,15 @@
-#include <filesystem>
-
-#include <SDL_image.h>
-
 #include "ResourceManager.hpp"
 
-ResourceManager::ResourceManager(const std::filesystem::path& asset_directory) : logger_{nullptr}, asset_directory_{asset_directory}, textures_{}
+#include <cstddef>
+#include <filesystem>
+#include <utility>
+
+#include <SDL_error.h>
+#include <SDL_image.h>
+
+#include "LoggingManager.hpp"
+
+ResourceManager::ResourceManager(const std::filesystem::path& asset_directory) : logger_{nullptr}, asset_directory_{asset_directory}, renderer_{nullptr}, textures_{}
 {
 }
 

@@ -16,12 +16,12 @@ public:
     {
     }
 
-    auto begin() -> const std::vector<T>::iterator
+    auto begin() -> const typename std::vector<T>::iterator
     {
         return component_vector_.begin();
     }
 
-    auto end() -> const std::vector<T>::iterator
+    auto end() -> const typename std::vector<T>::iterator
     {
         return component_vector_.end();
     }

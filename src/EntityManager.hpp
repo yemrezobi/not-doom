@@ -1,3 +1,6 @@
+#ifndef ENTITYMANAGER_HPP
+#define ENTITYMANAGER_HPP
+
 #include <vector>
 
 class EntityManager {
@@ -11,3 +14,5 @@ public:
 private:
     std::vector<bool> allocated_entities_;
 };
+
+#endif // ENTITYMANAGER_HPP

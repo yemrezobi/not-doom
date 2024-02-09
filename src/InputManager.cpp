@@ -1,6 +1,5 @@
-#include <SDL_events.h>
-
 #include "InputManager.hpp"
+
 #include "Vector3.hpp"
 
 auto InputManager::get_key_state(SDL_Scancode key_code) -> KeyState&
@@ -11,8 +10,6 @@ auto InputManager::get_key_state(SDL_Scancode key_code) -> KeyState&
 auto InputManager::set_key_state(SDL_Scancode key_code, bool state) -> void
 {
     KeyState& key_state = get_key_state(key_code);
-    key_state.key_down = false;
-    key_state.key_up = false;
     key_state.key_down = state && !key_state.is_pressed;
     key_state.key_up = !state && key_state.is_pressed;
     key_state.is_pressed = state;

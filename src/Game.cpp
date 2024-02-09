@@ -1,23 +1,23 @@
-#include <SDL_error.h>
+#include "Game.hpp"
+
+#include <cstddef>
+#include <string>
 
 #include <SDL.h>
+#include <SDL_error.h>
 #include <SDL_events.h>
-#include <SDL_keyboard.h>
-#include <SDL_keycode.h>
 #include <SDL_mouse.h>
-#include <SDL_pixels.h>
 #include <SDL_render.h>
+#include <SDL_stdinc.h>
 #include <SDL_timer.h>
 #include <SDL_video.h>
 
-#include "ComponentManager.hpp"
-#include "Game.hpp"
 #include "ResourceManager.hpp"
 
 Game::Game() :
     k_window_width{800.0}, k_window_height{600.0}, exiting_{false}, renderer_{nullptr}, entity_manager_{},
     component_manager_{}, input_manager_{}, resource_manager_{"../assets"}, systems_{},
-    logger_{LoggingManager::LogLevel::debug}, prev_time_{SDL_GetPerformanceCounter()}
+    delta_time_{0}, logger_{LoggingManager::LogLevel::debug}, prev_time_{SDL_GetPerformanceCounter()}
 {
     logger_.to_file("engine.log");
     resource_manager_.set_logger(&logger_);
@@ -84,7 +84,7 @@ void Game::loop()
         }
     }
 
-    for (auto& system_function : systems_) {
+    for (const auto& system_function : systems_) {
         system_function();
     }
 }

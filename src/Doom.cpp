@@ -1,27 +1,50 @@
-#include <SDL_mouse.h>
+#include "Doom.hpp"
+
+#include <cstddef>
+#include <algorithm>
+#include <cmath>
+#include <functional>
+#include <numbers>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include <SDL_error.h>
+#include <SDL_pixels.h>
 #include <SDL_rect.h>
 #include <SDL_render.h>
+#include <SDL_scancode.h>
+#include <SDL_video.h>
 
-#include "Doom.hpp"
+#include "ComponentManager.hpp"
+#include "ComponentVector.hpp"
+#include "EntityManager.hpp"
+#include "InputManager.hpp"
 #include "LoggingManager.hpp"
 #include "PhysicsComponent.hpp"
 #include "Quaternion.hpp"
 #include "RenderComponent.hpp"
+#include "ResourceManager.hpp"
 #include "TransformComponent.hpp"
 #include "Vector3.hpp"
 
+
 Doom::Doom() : player_movement_speed{1.0}, logger_{LoggingManager::LogLevel::debug}
 {
+    player_id_ = entity_manager_.create_entity();
+    camera_angles_ = {0, 0};
 }
 
 auto Doom::setup() -> void
 {
     logger_.to_console();
-    setup_systems();
 
     component_manager_.register_component<TransformComponent>();
     component_manager_.register_component<RenderComponent>();
     component_manager_.register_component<PhysicsComponent>();
+
+    systems_.push_back(std::bind(&Doom::process_physics, this));
+    systems_.push_back(std::bind(&Doom::process_renders, this));
 
     auto& transform_components = component_manager_.get_components<TransformComponent>();
     auto& render_components = component_manager_.get_components<RenderComponent>();
@@ -29,8 +52,6 @@ auto Doom::setup() -> void
 
     const Quaterniond direction = Quaterniond::identity();
     // initialize camera
-    player_id_ = entity_manager_.create_entity();
-    camera_angles_ = {0, 0};
     transform_components.insert_component({player_id_, {0, 0, -200}, direction, Vector3d::identity()});
     physics_components.insert_component({player_id_, {}, {}, false});
 
@@ -94,12 +115,6 @@ auto Doom::handle_event_key(const SDL_KeyboardEvent& event) -> void
     if (key_code == input_manager_.controls.exit_game && key_state.key_down) {
         exiting_ = true;
     }
-}
-
-auto Doom::setup_systems() -> void
-{
-    systems_.push_back(std::bind(&Doom::process_physics, this));
-    systems_.push_back(std::bind(&Doom::process_renders, this));
 }
 
 auto Doom::process_physics() -> void
@@ -175,9 +190,9 @@ auto Doom::process_renders() -> void
                 const double tesselation_tile_height = k_window_height / 50;
                 const double tesselation_tile_width = tesselation_tile_height * aspect_ratio;
                 const int tesselation_width_factor =
-                    std::floor(std::max(std::abs(v2.x - v1.x), abs(v4.x - v3.x)) / tesselation_tile_width);
+                    std::floor(std::max(std::fabs(v2.x - v1.x), fabs(v4.x - v3.x)) / tesselation_tile_width);
                 const int tesselation_height_factor =
-                    std::floor(std::max(std::abs(v3.y - v1.y), abs(v4.y - v2.y)) / tesselation_tile_height);
+                    std::floor(std::max(std::fabs(v3.y - v1.y), fabs(v4.y - v2.y)) / tesselation_tile_height);
                 const auto tesselated_quad =
                     tesselate(v1, v2, v3, v4, tesselation_height_factor, tesselation_width_factor);
                 SDL_RenderGeometry(renderer_, render_component.texture, tesselated_quad.vertices.get(),
@@ -213,8 +228,8 @@ auto Doom::tesselate(const Vector2d v1, const Vector2d v2, const Vector2d v3, co
         for (int j = 0; j < width_factor + 1; j++) {
             SDL_Vertex& vertex = vertices[i * (width_factor + 1) + j];
             vertex.position = {
-                static_cast<float>(left_pivot_x + (std::abs(right_pivot_x - left_pivot_x) / width_factor * j)),
-                static_cast<float>(left_pivot_y + (std::abs(right_pivot_y - left_pivot_y) / width_factor * j))};
+                static_cast<float>(left_pivot_x + (std::fabs(right_pivot_x - left_pivot_x) / width_factor * j)),
+                static_cast<float>(left_pivot_y + (std::fabs(right_pivot_y - left_pivot_y) / width_factor * j))};
             vertex.color = {255, 255, 255, 0};
             vertex.tex_coord = {
                 static_cast<float>(1.0 / width_factor * j), static_cast<float>(1.0 / height_factor * i)};
