@@ -101,7 +101,7 @@ auto Doom::handle_event_mouse_motion(const SDL_MouseMotionEvent& event) -> void
     constexpr double full_rotation = 50 * 2 * std::numbers::pi;
     // the mouse rotation around axes in radians
     camera_angles_.x = std::fmod(camera_angles_.x + event.yrel / full_rotation, 2 * std::numbers::pi);
-    camera_angles_.y = std::fmod(camera_angles_.y + event.xrel / full_rotation, 2 * std::numbers::pi);
+    camera_angles_.y = std::fmod(camera_angles_.y - event.xrel / full_rotation, 2 * std::numbers::pi);
     auto& player_transform = *component_manager_.get_components<TransformComponent>().find_component(player_id_);
     player_transform.rotation = Quaterniond::from_axis_angle({0, 1, 0}, camera_angles_.y)
         * Quaterniond::from_axis_angle({1, 0, 0}, camera_angles_.x);
@@ -172,7 +172,7 @@ auto Doom::process_renders() -> void
                 break;
             }
             case RenderComponent::RenderableType::quad: {
-                const Quaterniond total_rotation = camera_transform.rotation.inverse() * transform_component.rotation;
+                const Quaterniond total_rotation = camera_transform.rotation * transform_component.rotation;
                 const Vector3d translated_position = transform_component.position - camera_transform.position;
                 // top left
                 const Vector3d vec1 = total_rotation.rotate_point(translated_position);
@@ -182,6 +182,10 @@ auto Doom::process_renders() -> void
                 const Vector3d vec3 = total_rotation.rotate_point(translated_position + Vector3d{0, render_component.height, 0});
                 // bot right
                 const Vector3d vec4 = total_rotation.rotate_point(translated_position + Vector3d{render_component.width, render_component.height, 0});
+                // TODO: z culling
+                if (vec1.z < 0 || vec2.z < 0 || vec3.z < 0 || vec4.z <0) {
+                    break;
+                }
                 const Vector2d v1{vec1.x + k_window_width / 2, vec1.y + k_window_height / 2};
                 const Vector2d v2{vec2.x + k_window_width / 2, vec2.y + k_window_height / 2};
                 const Vector2d v3{vec3.x + k_window_width / 2, vec3.y + k_window_height / 2};

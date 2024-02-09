@@ -36,7 +36,7 @@ Game::Game() :
         logger_.error(std::string("Could not create renderer: ").append(SDL_GetError()));
     }
 
-    if (!SDL_SetRelativeMouseMode(SDL_TRUE)) {
+    if (SDL_SetRelativeMouseMode(SDL_TRUE)) {
         logger_.warning(std::string("Could not set relative mouse mode: ").append(SDL_GetError()));
     }
 
