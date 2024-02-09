@@ -57,6 +57,18 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MCSVC")
         PRIVATE
             "/Wall"
             "/WX"
+            #https://github.com/friendlyanon/cmake-init-executable/blob/master/CMakePresets.json#L78
+            "/sdl"
+            "/utf-8"
+            "/diagnostics:caret"
+            "/permissive-"
+            "/volatile:iso"
+            "/Zc:inline"
+            "/Zc:enumTypes"
+            "/Zc:__cplusplus"
+            "/Zc:externConstexpr"
+            "/Zc:throwingNew"
+            "/EHsc"
     )
 endif()
 
