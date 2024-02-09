@@ -29,7 +29,7 @@
 #include "Vector3.hpp"
 
 
-Doom::Doom() : player_movement_speed{1.0}, logger_{LoggingManager::LogLevel::debug}
+Doom::Doom() : player_movement_speed{10.0}, logger_{LoggingManager::LogLevel::debug}
 {
     player_id_ = entity_manager_.create_entity();
     camera_angles_ = {0, 0};
@@ -124,14 +124,15 @@ auto Doom::process_physics() -> void
 
     // Add movement speed to player's velocity
     auto& player_physics_component = *physics_vector.find_component(player_id_);
-    const Vector3d player_movement_vector = input_manager_.player_movement_vector() * player_movement_speed;
+    const Vector3d player_movement_vector = input_manager_.get_player_movement_vector() * player_movement_speed;
     player_physics_component.velocity += player_movement_vector;
 
     for (auto& physics_component : physics_vector) {
-        const Vector3d delta_v = physics_component.acceleration * delta_time_;
         auto& transform_component = *transform_vector.find_component(physics_component.entity_id);
-        physics_component.velocity += delta_v;
+        const Vector3d delta_v = physics_component.acceleration * delta_time_;
+        transform_component.position += physics_component.velocity * delta_time_;
         transform_component.position += delta_v * delta_time_ / 2;
+        physics_component.velocity += delta_v;
         // TODO: handle collision
         transform_component.position.y -= PhysicsComponent::k_gravity * physics_component.is_affected_by_gravity;
     }
@@ -183,7 +184,7 @@ auto Doom::process_renders() -> void
                 // bot right
                 const Vector3d vec4 = total_rotation.rotate_point(translated_position + Vector3d{render_component.width, render_component.height, 0});
                 // TODO: z culling
-                if (vec1.z < 0 || vec2.z < 0 || vec3.z < 0 || vec4.z <0) {
+                if (vec1.z < 0 || vec2.z < 0 || vec3.z < 0 || vec4.z < 0) {
                     break;
                 }
                 const Vector2d v1{vec1.x + k_window_width / 2, vec1.y + k_window_height / 2};

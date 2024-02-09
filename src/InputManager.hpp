@@ -41,11 +41,11 @@ public:
 
     auto get_key_state(SDL_Scancode key_code) -> KeyState&;
     auto set_key_state(SDL_Scancode key_code, bool state) -> void;
-    auto player_movement_vector() -> const Vector3d;
+    auto get_player_movement_vector() -> const Vector3d;
 
 private:
     std::unordered_map<SDL_Scancode, KeyState> key_states_;
-    auto player_movement_states() -> const PlayerDirections;
+    auto poll_player_movement_states() -> const PlayerDirections;
 };
 
 #endif // INPUTMANAGER_HPP
