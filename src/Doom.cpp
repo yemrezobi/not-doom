@@ -100,8 +100,8 @@ auto Doom::handle_event_mouse_motion(const SDL_MouseMotionEvent& event) -> void
     // how many mouse movement units a full rotation takes
     constexpr double full_rotation = 50 * 2 * std::numbers::pi;
     // the mouse rotation around axes in radians
-    camera_angles_.x = std::fmod(camera_angles_.x + event.yrel / full_rotation, 2 * std::numbers::pi);
-    camera_angles_.y = std::fmod(camera_angles_.y - event.xrel / full_rotation, 2 * std::numbers::pi);
+    camera_angles_.x = std::fmod(camera_angles_.x - event.yrel / full_rotation, 2 * std::numbers::pi);
+    camera_angles_.y = std::fmod(camera_angles_.y + event.xrel / full_rotation, 2 * std::numbers::pi);
     auto& player_transform = *component_manager_.get_components<TransformComponent>().find_component(player_id_);
     player_transform.rotation = Quaterniond::from_axis_angle({0, 1, 0}, camera_angles_.y)
         * Quaterniond::from_axis_angle({1, 0, 0}, camera_angles_.x);
