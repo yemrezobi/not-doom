@@ -12,8 +12,10 @@ class LoggingManager;
 class ResourceManager {
 public:
     explicit ResourceManager(const std::filesystem::path& asset_directory);
+    explicit ResourceManager();
     ~ResourceManager();
 
+    std::filesystem::path asset_directory;
 
     auto set_logger(LoggingManager* logger) -> void;
     auto set_renderer(SDL_Renderer* renderer) -> void;
@@ -21,7 +23,6 @@ public:
 
 private:
     LoggingManager* logger_;
-    std::filesystem::path asset_directory_;
     SDL_Renderer* renderer_;
     std::unordered_map<std::string, SDL_Texture*> textures_;
 };

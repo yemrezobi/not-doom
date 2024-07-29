@@ -1,4 +1,5 @@
 #include <chrono>
+// IWYU pragma: no_include <bits/chrono.h> // for operator-, floor, milliseconds, system_clock
 #include <format>
 #include <iostream>
 
@@ -25,7 +26,8 @@ auto LoggingManager::to_console() -> bool
 
 auto LoggingManager::to_file(const std::filesystem::path& filepath) -> bool
 {
-    file_stream_ = std::ofstream{filepath, std::ios_base::app | std::ios_base::out};
+    const std::filesystem::path absolute_path = runtime_dir_ / filepath;
+    file_stream_ = std::ofstream(absolute_path, std::ios_base::app | std::ios_base::out);
     if (file_stream_) {
         logging_method_ = LoggingMethod::file;
         output_stream_ = static_cast<std::ostream*>(&file_stream_);
@@ -76,5 +78,6 @@ auto LoggingManager::error(const std::string& string) const -> void
     if (log_level_ >= LogLevel::error) {
         write(std::format("{0:%F %T} [ERROR]: {1}",
             std::chrono::floor<std::chrono::milliseconds>(std::chrono::system_clock::now()), string));
+        output_stream_->flush();
     }
 }

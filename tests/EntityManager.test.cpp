@@ -1,4 +1,6 @@
 #include <gtest/gtest.h>
+// IWYU pragma: no_include <memory> // for allocator
+// IWYU pragma: no_include "gtest/gtest.h" // for DeathTest, Message, TestPartResult
 
 #include "EntityManager.hpp"
 

@@ -36,6 +36,7 @@ public:
         SDL_Scancode jump = SDL_SCANCODE_SPACE;
         SDL_Scancode crouch = SDL_SCANCODE_LCTRL;
         SDL_Scancode exit_game = SDL_SCANCODE_ESCAPE;
+        SDL_Scancode reset_camera = SDL_SCANCODE_GRAVE;
     } controls;
     // clang-format on
 

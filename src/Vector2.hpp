@@ -18,11 +18,6 @@ public:
     {
     }
 
-    auto static identity() -> Vector2<T>
-    {
-        return {1, 1};
-    }
-
     auto normalized() const -> Vector2<T>
     {
         const T sum_of_squares = x * x + y * y;
@@ -38,6 +33,11 @@ public:
         return x * rhs.x + y * rhs.y;
     }
 
+    auto operator-() const -> Vector2<T>
+    {
+        return {-x, -y};
+    }
+
     // operations with scalars
 
     auto operator+(const T rhs) const -> Vector2<T>
@@ -47,20 +47,18 @@ public:
 
     auto operator+=(const T rhs) -> Vector2<T>&
     {
-        x += rhs;
-        y += rhs;
+        *this = *this + rhs;
         return *this;
     }
 
     auto operator-(const T rhs) const -> Vector2<T>
     {
-        return {x - rhs, y - rhs};
+        return *this + -rhs;
     }
 
     auto operator-=(const T rhs) -> Vector2<T>&
     {
-        x -= rhs;
-        y -= rhs;
+        *this = *this - rhs;
         return *this;
     }
 
@@ -71,20 +69,18 @@ public:
 
     auto operator*=(const T rhs) -> Vector2<T>&
     {
-        x *= rhs;
-        y *= rhs;
+        *this = *this * rhs;
         return *this;
     }
 
     auto operator/(const T rhs) const -> Vector2<T>
     {
-        return {x / rhs, y / rhs};
+        return *this * (1 / rhs);
     }
 
     auto operator/=(const T rhs) -> Vector2<T>&
     {
-        x /= rhs;
-        y /= rhs;
+        *this = *this / rhs;
         return *this;
     }
 
@@ -97,44 +93,18 @@ public:
 
     auto operator+=(const Vector2<T>& rhs) -> Vector2<T>
     {
-        x += rhs.x;
-        y += rhs.y;
+        *this = *this + rhs;
         return *this;
     }
 
     auto operator-(const Vector2<T>& rhs) const -> Vector2<T>
     {
-        return {x - rhs.x, y - rhs.y};
+        return *this + -rhs;
     }
 
     auto operator-=(const Vector2<T>& rhs) -> Vector2<T>&
     {
-        x -= rhs.x;
-        y -= rhs.y;
-        return *this;
-    }
-
-    auto operator*(const Vector2<T>& rhs) const -> Vector2<T>
-    {
-        return {x * rhs.x, y * rhs.y};
-    }
-
-    auto operator*=(const Vector2<T>& rhs) -> Vector2<T>&
-    {
-        x *= rhs.x;
-        y *= rhs.y;
-        return *this;
-    }
-
-    auto operator/(const Vector2<T>& rhs) const -> Vector2<T>
-    {
-        return {x / rhs.x, y / rhs.y};
-    }
-
-    auto operator/=(const Vector2<T>& rhs) -> Vector2<T>&
-    {
-        x /= rhs.x;
-        y /= rhs.y;
+        *this = *this - rhs;
         return *this;
     }
 

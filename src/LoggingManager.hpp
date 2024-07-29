@@ -32,6 +32,7 @@ private:
     LogLevel log_level_;
     std::ostream* output_stream_;
     std::ofstream file_stream_;
+    std::filesystem::path runtime_dir_;
 };
 
 #endif // LOGGINGMANAGER_HPP

@@ -28,6 +28,7 @@ set(SOURCES
     src/Vector2.hpp
     src/Vector3.hpp
     src/Quaternion.hpp
+    src/Matrix4x4.hpp
     src/LoggingManager.hpp          src/LoggingManager.cpp
 )
 
@@ -38,13 +39,38 @@ target_sources(${PROJECT_NAME}
 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        target_compile_options(${PROJECT_NAME}
+            PRIVATE
+                "-fsanitize=undefined"
+                "-fsanitize=address"
+        )
+        target_link_options(${PROJECT_NAME}
+            PRIVATE
+                "-fsanitize=undefined"
+                "-fsanitize=address"
+        )
+    endif()
     target_compile_options(${PROJECT_NAME}
         PRIVATE
             "-Werror"
             "-Wall"
             "-Wextra"
-            "-Wpedantic")
+            "-Wpedantic"
+    )
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        target_compile_options(${PROJECT_NAME}
+            PRIVATE
+                "-fsanitize=undefined"
+                "-fsanitize=address"
+        )
+        target_link_options(${PROJECT_NAME}
+            PRIVATE
+                "-fsanitize=undefined"
+                "-fsanitize=address"
+        )
+    endif()
     target_compile_options(${PROJECT_NAME}
         PRIVATE
             "-Werror"
@@ -53,6 +79,18 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
             "-Wpedantic"
     )
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MCSVC")
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        target_compile_options(${PROJECT_NAME}
+            PRIVATE
+                "/fsanitize=undefined"
+                "/fsanitize=address"
+        )
+        target_link_options(${PROJECT_NAME}
+            PRIVATE
+                "/fsanitize=undefined"
+                "/fsanitize=address"
+        )
+    endif()
     target_compile_options(${PROJECT_NAME}
         PRIVATE
             "/Wall"
@@ -101,6 +139,7 @@ target_sources(${TEST_EXECUTABLE_NAME}
         tests/ComponentManager.test.cpp
         tests/EntityManager.test.cpp
         tests/Quaternion.test.cpp
+        tests/Matrix4x4.test.cpp
 )
 
 target_include_directories(${TEST_EXECUTABLE_NAME}

@@ -16,6 +16,8 @@ public:
 
 private:
     int player_id_;
+    // euler angles of direction player is looking at
+    // to track mouse input
     struct {
         double x;
         double y;

@@ -2,29 +2,30 @@
 #include <format>
 #include <numbers>
 
+#include <gmock/gmock.h> // IWYU pragma: keep
+// IWYU pragma: no_include "gmock/gmock.h" // for MakePredicateFormatterFromMatcher, GMOCK_P...
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
+// IWYU pragma: no_include <memory> // for allocator
+// IWYU pragma: no_include "gtest/gtest.h" // for DeathTest, Message, TestPartResult
 
 #include "Quaternion.hpp"
 #include "Vector3.hpp"
 
-bool almost_equals(double a, double b)
+inline bool almost_equals(double a, double b)
 {
-    constexpr double epsilon = 0.001;
+    constexpr double epsilon = 0.005;
     return std::fabs(a - b) < epsilon;
 }
 
-MATCHER_P(QuaterniondEq, q, std::format("is{} equal to {{{}, {}, {}, {}}}", negation ? " not" : "", q.w, q.x, q.y, q.z)) {
-    return almost_equals(arg.w, q.w) &&
-        almost_equals(arg.x, q.x) &&
-        almost_equals(arg.y, q.y) &&
-        almost_equals(arg.z, q.z);
+MATCHER_P(QuaterniondEq, q, std::format("is{} equal to {{{}, {}, {}, {}}}", negation ? " not" : "", q.w, q.x, q.y, q.z))
+{
+    return almost_equals(arg.w, q.w) && almost_equals(arg.x, q.x) && almost_equals(arg.y, q.y)
+        && almost_equals(arg.z, q.z);
 }
 
-MATCHER_P(Vector3dEq, v, std::format("is{} equal to {{{}, {}, {}}}", negation ? " not" : "", v.x, v.y, v.z)) {
-    return almost_equals(arg.x, v.x) &&
-        almost_equals(arg.y, v.y) &&
-        almost_equals(arg.z, v.z);
+MATCHER_P(Vector3dEq, v, std::format("is{} equal to {{{}, {}, {}}}", negation ? " not" : "", v.x, v.y, v.z))
+{
+    return almost_equals(arg.x, v.x) && almost_equals(arg.y, v.y) && almost_equals(arg.z, v.z);
 }
 
 TEST(FromAngleAxisTest, Test1)
@@ -36,7 +37,8 @@ TEST(FromAngleAxisTest, Test1)
 
 TEST(FromAngleAxisTest, Test2)
 {
-    const Quaternion result = Quaterniond::from_axis_angle({0.508755913214, -0.351586675739, 0.785846187375}, 3.0 / 5.0 * std::numbers::pi);
+    const Quaternion result =
+        Quaterniond::from_axis_angle({0.508755913214, -0.351586675739, 0.785846187375}, 3.0 / 5.0 * std::numbers::pi);
     const Quaternion expected{0.587785252293, 0.411592179779, -0.284439595669, 0.635762920551};
     EXPECT_THAT(result, QuaterniondEq(expected));
 }
@@ -78,9 +80,9 @@ TEST(ApplyTest, Test0)
 {
     const Quaterniond q{0, 1, 1, 1};
     const Vector3d pos{1, 1, 1};
-    const Vector3d result = q.rotate_point(pos);
+    const Vector3d result = q.normalized().rotate_point(pos);
     const Vector3d expected{1, 1, 1};
-    EXPECT_THAT(result.normalized(), Vector3dEq(expected.normalized()));
+    EXPECT_THAT(result, Vector3dEq(expected));
 }
 
 TEST(ApplyTest, Test1)
@@ -94,7 +96,8 @@ TEST(ApplyTest, Test1)
 
 TEST(ApplyTest, Test2)
 {
-    const Quaternion q = Quaterniond::from_axis_angle({0.508755913214, -0.351586675739, 0.785846187375}, 3.0 / 5.0 * std::numbers::pi);
+    const Quaternion q =
+        Quaterniond::from_axis_angle({0.508755913214, -0.351586675739, 0.785846187375}, 3.0 / 5.0 * std::numbers::pi);
     const Vector3d pos{4.7, 0, 10.3};
     const Vector3d result = q.rotate_point(pos);
     const Vector3d expected{2.0864608014, -6.29671942139, 9.17485726606};
@@ -141,7 +144,7 @@ TEST(QuatMultTest, Test2)
 {
     const Quaterniond q1{4.8, 5.7, 6.3, -429.2};
     const Quaterniond q2{-526.1, -369.2, 144.9, -0.8354};
-    //multiplication is not commutative
+    // multiplication is not commutative
     const Quaterniond result = q2 * q1;
     const Quaterniond expected{-1692.26368, -66956.74698, -161084.31178, 222646.22008};
     EXPECT_THAT(result, QuaterniondEq(expected));

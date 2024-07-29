@@ -33,7 +33,7 @@ public:
         const T sine = std::sin(angle / 2);
         const T cosine = std::cos(angle / 2);
 
-        Quaternion<T> temp = {cosine, axis.x * sine, axis.y * sine, axis.z * sine};
+        const Quaternion<T> temp = {cosine, axis.x * sine, axis.y * sine, axis.z * sine};
         return temp.normalized();
     }
 
@@ -47,10 +47,10 @@ public:
         return {w / magnitude, x / magnitude, y / magnitude, z / magnitude};
     }
 
+    // assumes normalized
     auto inverse() const -> Quaternion<T>
     {
-        const Quaternion<T> temp = this->normalized();
-        return {this->w, -temp.x, -temp.y, -temp.z};
+        return {this->w, -x, -y, -z};
     }
 
     auto dot(const Quaternion<T>& rhs) const -> T
@@ -59,10 +59,11 @@ public:
     }
 
     // apply quaternion rotation to vector
+    // assumes normalized quaternion
     auto rotate_point(const Vector3<T>& vector) const -> Vector3<T>
     {
         Quaternion<T> temp = Quaternion<T>{0, vector.x, vector.y, vector.z} * this->inverse();
-        temp = this->normalized() * temp;
+        temp = *this * temp;
         return {temp.x, temp.y, temp.z};
     }
 

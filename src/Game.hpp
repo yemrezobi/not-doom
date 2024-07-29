@@ -32,6 +32,7 @@ protected:
     ResourceManager resource_manager_;
     std::vector<std::function<void()>> systems_;
     uint64_t delta_time_;
+    std::filesystem::path runtime_dir_;
 
     auto virtual handle_event_window(const SDL_WindowEvent&) -> void
     {

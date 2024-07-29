@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <string>
+#include <type_traits>
 
 #include <SDL.h>
 #include <SDL_error.h>
@@ -14,12 +15,46 @@
 
 #include "ResourceManager.hpp"
 
+#ifdef _WIN32
+#ifdef WIN32_LEAN_AND_MEAN
+#include "windows.h"
+#else
+#define WIN32_LEAN_AND_MEAN
+#include "windows.h"
+#undef WIN32_LEAN_AND_MEAN
+#endif // WIN32_LEAN_AND_MEAN
+#endif // _WIN32
+
+#ifdef _WIN32
+// std::wstring outpath
+#define GET_EXECUTABLE_PATH(outpath) { \
+    assert(typeof((outpath)) == std::wstring); \
+    constexpr size_t _outpath_size = 256; \
+    wchar_t _temp_outpath[_outpath_size]; \
+    GetModuleFileNameA(NULL, _temp_outpath, _outpath_size); \
+    (outpath).assign(_temp_outpath); \
+}
+#elif __linux__
+// std::wstring outpath
+#define GET_EXECUTABLE_PATH(outpath) { \
+    static_assert(std::is_same<decltype(outpath), std::wstring>::value, "outpath must be std::wstring."); \
+    (outpath).assign(std::filesystem::read_symlink("/proc/self/exe").generic_wstring()); \
+}
+#endif // _WIN32
+
 Game::Game() :
     k_window_width{800.0}, k_window_height{600.0}, exiting_{false}, renderer_{nullptr}, entity_manager_{},
-    component_manager_{}, input_manager_{}, resource_manager_{"../assets"}, systems_{},
+    component_manager_{}, input_manager_{}, systems_{},
     delta_time_{0}, logger_{LoggingManager::LogLevel::debug}, prev_time_{SDL_GetPerformanceCounter()}
 {
-    logger_.to_file("engine.log");
+    std::wstring executable_path;
+    GET_EXECUTABLE_PATH(executable_path);
+    runtime_dir_ = executable_path;
+    runtime_dir_.remove_filename();
+
+    resource_manager_.asset_directory = runtime_dir_ / "../assets";
+
+    logger_.to_file(runtime_dir_ / "engine.log");
     resource_manager_.set_logger(&logger_);
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         logger_.error(std::string("Could not init SDL: ").append(SDL_GetError()));
@@ -31,7 +66,7 @@ Game::Game() :
         logger_.error(std::string("Could not create window: ").append(SDL_GetError()));
     }
 
-    renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_SOFTWARE);
+    renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED);
     if (renderer_ == NULL) {
         logger_.error(std::string("Could not create renderer: ").append(SDL_GetError()));
     }

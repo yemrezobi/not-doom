@@ -19,11 +19,6 @@ public:
     {
     }
 
-    auto static identity() -> Vector3<T>
-    {
-        return {1, 1, 1};
-    }
-
     auto normalized() const -> Vector3<T>
     {
         const T sum_of_squares = x * x + y * y + z * z;
@@ -39,6 +34,11 @@ public:
         return x * rhs.x + y * rhs.y + z * rhs.z;
     }
 
+    auto operator-() const -> Vector3<T>
+    {
+        return {-x, -y, -z};
+    }
+
     // operations with scalars
 
     auto operator+(const T rhs) const -> Vector3<T>
@@ -48,22 +48,18 @@ public:
 
     auto operator+=(const T rhs) -> Vector3<T>&
     {
-        x += rhs;
-        y += rhs;
-        z += rhs;
+        *this = *this + rhs;
         return *this;
     }
 
     auto operator-(const T rhs) const -> Vector3<T>
     {
-        return {x - rhs, y - rhs, z - rhs};
+        return *this + -rhs;
     }
 
     auto operator-=(const T rhs) -> Vector3<T>&
     {
-        x -= rhs;
-        y -= rhs;
-        z -= rhs;
+        *this = *this - rhs;
         return *this;
     }
 
@@ -74,22 +70,18 @@ public:
 
     auto operator*=(const T rhs) -> Vector3<T>&
     {
-        x *= rhs;
-        y *= rhs;
-        z *= rhs;
+        *this = *this * rhs;
         return *this;
     }
 
     auto operator/(const T rhs) const -> Vector3<T>
     {
-        return {x / rhs, y / rhs, z / rhs};
+        return *this * (1 / rhs);
     }
 
     auto operator/=(const T rhs) -> Vector3<T>&
     {
-        x /= rhs;
-        y /= rhs;
-        z /= rhs;
+        *this = *this / rhs;
         return *this;
     }
 
@@ -102,53 +94,29 @@ public:
 
     auto operator+=(const Vector3& rhs) -> Vector3<T>&
     {
-        x += rhs.x;
-        y += rhs.y;
-        z += rhs.z;
+        *this = *this + rhs;
         return *this;
     }
 
-    auto operator-(const Vector3& rhs) const -> Vector3
+    auto operator-(const Vector3& rhs) const -> Vector3<T>
     {
-        return {x - rhs.x, y - rhs.y, z - rhs.z};
+        return *this + -rhs;
     }
 
-    auto operator-=(const Vector3& rhs) -> Vector3&
+    auto operator-=(const Vector3& rhs) -> Vector3<T>&
     {
-        x -= rhs.x;
-        y -= rhs.y;
-        z -= rhs.z;
+        *this = *this - rhs;
         return *this;
     }
 
-    auto operator*(const Vector3<T>& rhs) const -> Vector3<T>
+    // element-wise multiplication
+    auto element_wise(const Vector3& rhs) -> Vector3<T>
     {
         return {x * rhs.x, y * rhs.y, z * rhs.z};
     }
 
-    auto operator*=(const Vector3<T>& rhs) -> Vector3<T>&
-    {
-        x *= rhs.x;
-        y *= rhs.y;
-        z *= rhs.z;
-        return *this;
-    }
-
-    auto operator/(const Vector3<T>& rhs) const -> Vector3<T>
-    {
-        return {x / rhs.x, y / rhs.y, z / rhs.z};
-    }
-
-    auto operator/=(const Vector3<T>& rhs) -> Vector3<T>&
-    {
-        x /= rhs.x;
-        y /= rhs.y;
-        z /= rhs.z;
-        return *this;
-    }
-
     // needed for googletest output
-    auto PrintTo(const Vector3& vector, std::ostream* os) -> void
+    friend auto PrintTo(const Vector3& vector, std::ostream* os) -> void
     {
         *os << "{" << vector.x << ", " << vector.y << ", " << vector.z << "}";
     }
