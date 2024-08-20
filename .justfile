@@ -1,10 +1,13 @@
 build_dir := "./build"
 gtest_dir := "/usr/include/gtest"
 build_config := "Debug"
+cpu_count := `lscpu -V &>/dev/null && lscpu -p=CPU | wc -l || echo ""`
+
+cmake:
+    cmake -S . -B ./build -G "Ninja Multi-Config" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=TRUE
 
 build:
-    cmake -S . -B {{build_dir}} -G "Ninja Multi-Config" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=TRUE
-    cmake --build {{build_dir}} --config {{build_config}} --parallel $(lscpu -p=CPU | wc -l)
+    cmake --build {{build_dir}} --config {{build_config}} --parallel {{cpu_count}}
 
 lint:
     iwyu-tool -j 4 -p {{build_dir}}/compile_commands.json -- -Xiwyu --error -Xiwyu --cxx17ns | sd '^\(.* has correct #includes/fwd-decls\)$\n+' ''

@@ -115,8 +115,8 @@ target_include_directories(${PROJECT_NAME}
         src
 )
 
-find_package(SDL2 REQUIRED)
-find_package(SDL2_image REQUIRED)
+find_package(SDL2 REQUIRED CONFIG) 
+find_package(SDL2_image REQUIRED CONFIG)
 include_directories(${SDL2_INCLUDE_DIRS} SYSTEM)
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
@@ -124,7 +124,13 @@ target_link_libraries(${PROJECT_NAME}
         SDL2_image::SDL2_image
 )
 
-find_package(GTest REQUIRED)
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
+    COMMAND_EXPAND_LISTS
+)
+
+find_package(GTest REQUIRED CONFIG)
+include(GoogleTest)
 enable_testing()
 
 set(TEST_EXECUTABLE_NAME ${PROJECT_NAME}_test)
@@ -151,8 +157,7 @@ target_link_libraries(${TEST_EXECUTABLE_NAME}
     PRIVATE
         SDL2::SDL2
         SDL2_image::SDL2_image
-        GTest::gtest_main
-        GTest::gmock_main
+	    GTest::gmock_main
 )
 
 gtest_discover_tests(${TEST_EXECUTABLE_NAME})
