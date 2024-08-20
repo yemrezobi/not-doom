@@ -49,7 +49,7 @@ protected:
 private:
     LoggingManager logger_;
     SDL_Window* window_;
-    double prev_time_;
+    Uint64 prev_time_;
 
     virtual auto setup() -> void = 0;
     auto loop() -> void;
