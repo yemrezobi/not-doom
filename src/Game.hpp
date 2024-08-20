@@ -31,7 +31,7 @@ protected:
     InputManager input_manager_;
     ResourceManager resource_manager_;
     std::vector<std::function<void()>> systems_;
-    uint64_t delta_time_;
+    double delta_time_;
     std::filesystem::path runtime_dir_;
 
     auto virtual handle_event_window(const SDL_WindowEvent&) -> void
@@ -49,7 +49,7 @@ protected:
 private:
     LoggingManager logger_;
     SDL_Window* window_;
-    uint64_t prev_time_;
+    double prev_time_;
 
     virtual auto setup() -> void = 0;
     auto loop() -> void;

@@ -1,6 +1,7 @@
 #include "Game.hpp"
 
 #include <cstddef>
+#include <optional>
 #include <string>
 #include <type_traits>
 
@@ -26,19 +27,16 @@
 #endif // _WIN32
 
 #ifdef _WIN32
-// std::wstring outpath
-#define GET_EXECUTABLE_PATH(outpath) { \
-    assert(typeof((outpath)) == std::wstring); \
-    constexpr size_t _outpath_size = 256; \
-    wchar_t _temp_outpath[_outpath_size]; \
-    GetModuleFileNameA(NULL, _temp_outpath, _outpath_size); \
-    (outpath).assign(_temp_outpath); \
+std::optional<std::wstring> get_executable_path() {
+    wchar_t temp_outpath[MAX_PATH];
+    if(GetModuleFileNameW(NULL, temp_outpath, MAX_PATH) == MAX_PATH) {
+        return std::nullopt;
+    }
+    return std::wstring(temp_outpath);
 }
 #elif __linux__
-// std::wstring outpath
-#define GET_EXECUTABLE_PATH(outpath) { \
-    static_assert(std::is_same<decltype(outpath), std::wstring>::value, "outpath must be std::wstring."); \
-    (outpath).assign(std::filesystem::read_symlink("/proc/self/exe").generic_wstring()); \
+std::optional<std::wstring> get_executable_path() {
+    return std::filesystem::read_symlink("/proc/self/exe").generic_wstring();
 }
 #endif // _WIN32
 
@@ -47,9 +45,11 @@ Game::Game() :
     component_manager_{}, input_manager_{}, systems_{},
     delta_time_{0}, logger_{LoggingManager::LogLevel::debug}, prev_time_{SDL_GetPerformanceCounter()}
 {
-    std::wstring executable_path;
-    GET_EXECUTABLE_PATH(executable_path);
-    runtime_dir_ = executable_path;
+    auto executable_path = get_executable_path();
+    if(!executable_path) {
+        throw ("Executable path too long");
+    }
+    runtime_dir_ = get_executable_path().value();
     runtime_dir_.remove_filename();
 
     resource_manager_.asset_directory = runtime_dir_ / "../assets";
@@ -95,7 +95,7 @@ void Game::start()
 void Game::loop()
 {
     uint64_t curr_time = SDL_GetPerformanceCounter();
-    delta_time_ = (curr_time - prev_time_) * 1000 / SDL_GetPerformanceFrequency();
+    delta_time_ = (double)(curr_time - prev_time_) * 1000 / (double)SDL_GetPerformanceFrequency();
     prev_time_ = curr_time;
 
     SDL_Event current_event;
