@@ -36,10 +36,6 @@ private:
     auto handle_event_mouse_motion(const SDL_MouseMotionEvent& event) -> void override;
     auto handle_event_key(const SDL_KeyboardEvent& event) -> void override;
 
-    // TODO: move this function somefile more relevant
-    // take top left, top right, bot left, bot right points respectively
-    auto tesselate(const Vector2d v1, const Vector2d v2, const Vector2d v3, const Vector2d v4, const int height_factor, const int width_factor) const -> const TesselationResult;
-
     // systems
     // cppcheck-suppress unusedPrivateFunction
     auto process_physics() -> void;

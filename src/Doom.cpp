@@ -38,9 +38,10 @@ Doom::Doom() : player_movement_speed{1.0}, logger_{LoggingManager::LogLevel::deb
 auto Doom::setup() -> void
 {
     if (!logger_.to_console()) {
-        logger_.warning("Could not initialize console logging");
         logger_.to_file(runtime_dir_ / "doom.log");
+        logger_.warning("Could not initialize console logging");
     }
+    logger_.info("Started logging");
 
     component_manager_.register_component<TransformComponent>();
     component_manager_.register_component<RenderComponent>();
@@ -56,31 +57,31 @@ auto Doom::setup() -> void
     const Quaterniond direction = Quaterniond::identity();
     const Vector3d scale = {1, 1, 1};
     // initialize camera
-    transform_components.insert_component({player_id_, {0, 0, -200}, direction, scale});
+    transform_components.insert_component({player_id_, {0, 0, 0}, direction, scale});
     physics_components.insert_component({player_id_, {}, {}, false});
 
     const int e1 = entity_manager_.create_entity();
-    transform_components.insert_component({e1, {-50 - 128, 50, 0}, direction, scale});
+    transform_components.insert_component({e1, {-50 - 128, 50, 20}, direction, scale});
     render_components.insert_component(
         {e1, RenderComponent::RenderableType::quad, resource_manager_.get_texture("brick"), 128, 128});
 
     const int e2 = entity_manager_.create_entity();
-    transform_components.insert_component({e2, {50, 50, 0}, direction, scale});
+    transform_components.insert_component({e2, {50, 50, 20}, direction, scale});
     render_components.insert_component(
         {e2, RenderComponent::RenderableType::quad, resource_manager_.get_texture("brick1"), 128, 128});
 
     const int e3 = entity_manager_.create_entity();
-    transform_components.insert_component({e3, {-50 - 128, -50 - 128, 0}, direction, scale});
+    transform_components.insert_component({e3, {-50 - 128, -50 - 128, 20}, direction, scale});
     render_components.insert_component(
         {e3, RenderComponent::RenderableType::quad, resource_manager_.get_texture("brick2"), 128, 128});
 
     const int e4 = entity_manager_.create_entity();
-    transform_components.insert_component({e4, {50, -50 - 128, 0}, direction, scale});
+    transform_components.insert_component({e4, {50, -50 - 128, 20}, direction, scale});
     render_components.insert_component(
         {e4, RenderComponent::RenderableType::quad, resource_manager_.get_texture("wood"), 128, 128});
 
     const int e5 = entity_manager_.create_entity();
-    transform_components.insert_component({e5, {-64, -64, 0}, direction, scale});
+    transform_components.insert_component({e5, {-64, -64, 20}, direction, scale});
     render_components.insert_component(
         {e5, RenderComponent::RenderableType::quad, resource_manager_.get_texture("aqpanl03"), 128, 128});
 }
@@ -167,7 +168,7 @@ auto Doom::process_renders() -> void
         logger_.error(std::string("Could not clear render target: ").append(SDL_GetError()));
     }
 
-    constexpr double near = 0.5;
+    constexpr double near = 1.0;
     constexpr double far = 20.0;
     const double fov = 70.0;
     const Matrix4x4d perspective_matrix =
