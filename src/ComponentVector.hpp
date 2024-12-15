@@ -1,5 +1,4 @@
-#ifndef ICOMPONENTVECTOR_HPP
-#define ICOMPONENTVECTOR_HPP
+#pragma once
 
 #include <algorithm>
 #include <vector>
@@ -56,5 +55,3 @@ public:
 private:
     std::vector<T> component_vector_;
 };
-
-#endif // ICOMPONENTVECTOR_HPP

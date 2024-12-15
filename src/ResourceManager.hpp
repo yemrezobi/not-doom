@@ -1,5 +1,4 @@
-#ifndef RESOURCEMANAGER_HPP
-#define RESOURCEMANAGER_HPP
+#pragma once
 
 #include <filesystem>
 #include <string>
@@ -26,5 +25,3 @@ private:
     SDL_Renderer* renderer_;
     std::unordered_map<std::string, SDL_Texture*> textures_;
 };
-
-#endif //RESOURCEMANAGER_HPP

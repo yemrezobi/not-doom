@@ -1,5 +1,4 @@
-#ifndef GAME_HPP
-#define GAME_HPP
+#pragma once
 
 #include <SDL_events.h>
 #include <functional>
@@ -54,5 +53,3 @@ private:
     virtual auto setup() -> void = 0;
     auto loop() -> void;
 };
-
-#endif // GAME_HPP

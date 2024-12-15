@@ -1,5 +1,4 @@
-#ifndef RENDERCOMPONENT_HPP
-#define RENDERCOMPONENT_HPP
+#pragma once
 
 #include <SDL_render.h>
 
@@ -15,5 +14,3 @@ struct RenderComponent {
     double width;
     double height;
 };
-
-#endif // RENDERCOMPONENT_HPP

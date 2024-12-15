@@ -1,5 +1,4 @@
-#ifndef MATRIX4X4_HPP
-#define MATRIX4X4_HPP
+#pragma once
 
 #include <array>
 #include <format>
@@ -236,5 +235,3 @@ public:
 
 using Matrix4x4f = Matrix4x4<float>;
 using Matrix4x4d = Matrix4x4<double>;
-
-#endif // MATRIX4X4_HPP

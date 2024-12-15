@@ -1,5 +1,4 @@
-#ifndef VECTOR2_HPP
-#define VECTOR2_HPP
+#pragma once
 
 #include <cmath>
 #include <ostream>
@@ -117,5 +116,3 @@ public:
 
 using Vector2f = Vector2<float>;
 using Vector2d = Vector2<double>;
-
-#endif // VECTOR2_HPP

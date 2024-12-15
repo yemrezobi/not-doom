@@ -1,5 +1,4 @@
-#ifndef PACKEDARRAY_HPP
-#define PACKEDARRAY_HPP
+#pragma once
 
 #include <cassert>
 
@@ -38,5 +37,3 @@ private:
     int size;
     const int max_size;
 };
-
-#endif //PACKEDARRAY_HPP

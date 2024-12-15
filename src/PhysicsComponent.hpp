@@ -1,5 +1,4 @@
-#ifndef PHYSICSCOMPONENT_H
-#define PHYSICSCOMPONENT_H
+#pragma once
 
 #include "Vector3.hpp"
 
@@ -10,5 +9,3 @@ struct PhysicsComponent {
     Vector3d acceleration;
     bool is_affected_by_gravity;
 };
-
-#endif // PHYSICSCOMPONENT_H

@@ -1,5 +1,4 @@
-#ifndef DOOM_HPP
-#define DOOM_HPP
+#pragma once
 
 #include <memory>
 
@@ -42,5 +41,3 @@ private:
     // cppcheck-suppress unusedPrivateFunction
     auto process_renders() -> void;
 };
-
-#endif // DOOM_HPP

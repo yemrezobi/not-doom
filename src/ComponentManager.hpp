@@ -1,5 +1,4 @@
-#ifndef COMPONENTMANAGER_HPP
-#define COMPONENTMANAGER_HPP
+#pragma once
 
 #include <cassert>
 #include <map>
@@ -41,5 +40,3 @@ private:
     std::map<std::type_index, std::unique_ptr<IComponentVector>>
         type_to_vector_;
 };
-
-#endif // COMPONENTMANAGER_HPP

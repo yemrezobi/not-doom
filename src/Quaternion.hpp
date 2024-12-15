@@ -1,5 +1,4 @@
-#ifndef QUATERNION_HPP
-#define QUATERNION_HPP
+#pragma once
 
 #include <cmath>
 #include <ostream>
@@ -142,5 +141,3 @@ public:
 
 using Quaternionf = Quaternion<float>;
 using Quaterniond = Quaternion<double>;
-
-#endif // QUATERNION_HPP

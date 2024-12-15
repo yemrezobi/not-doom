@@ -1,5 +1,4 @@
-#ifndef TRANSFORMCOMPONENT_HPP
-#define TRANSFORMCOMPONENT_HPP
+#pragma once
 
 #include "Vector3.hpp"
 #include "Quaternion.hpp"
@@ -10,5 +9,3 @@ struct TransformComponent {
     Quaterniond rotation;
     Vector3d scale;
 };
-
-#endif //TRANSFORMCOMPONENT_HPP

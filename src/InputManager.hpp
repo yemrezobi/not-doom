@@ -1,5 +1,4 @@
-#ifndef INPUTMANAGER_HPP
-#define INPUTMANAGER_HPP
+#pragma once
 
 #include <unordered_map>
 
@@ -48,5 +47,3 @@ private:
     std::unordered_map<SDL_Scancode, KeyState> key_states_;
     auto poll_player_movement_states() -> const PlayerDirections;
 };
-
-#endif // INPUTMANAGER_HPP

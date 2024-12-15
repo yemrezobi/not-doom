@@ -1,5 +1,4 @@
-#ifndef VECTOR3_HPP
-#define VECTOR3_HPP
+#pragma once
 
 #include <ostream>
 #include <cmath>
@@ -124,5 +123,3 @@ public:
 
 using Vector3f = Vector3<float>;
 using Vector3d = Vector3<double>;
-
-#endif // VECTOR3_HPP
