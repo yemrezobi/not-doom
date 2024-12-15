@@ -7,7 +7,7 @@ auto InputManager::get_key_state(SDL_Scancode key_code) -> KeyState&
     return key_states_[key_code];
 }
 
-auto InputManager::set_key_state(SDL_Scancode key_code, bool state) -> void
+auto InputManager::update_key_state(SDL_Scancode key_code, bool state) -> void
 {
     KeyState& key_state = get_key_state(key_code);
     key_state.key_down = state && !key_state.is_pressed;
@@ -15,18 +15,17 @@ auto InputManager::set_key_state(SDL_Scancode key_code, bool state) -> void
     key_state.is_pressed = state;
 }
 
-auto InputManager::get_player_movement_vector() -> const Vector3d
+auto InputManager::get_player_movement_vector() -> Vector3f
 {
     PlayerDirections player_directions = poll_player_movement_states();
-    Vector3d direction_vector;
-    direction_vector.z += player_directions.forward;
-    direction_vector.x -= player_directions.left;
-    direction_vector.z -= player_directions.backward;
-    direction_vector.x += player_directions.right;
-    return direction_vector;
+    return{
+        static_cast<float>(player_directions.right - player_directions.left),
+        0.0f,
+        static_cast<float>(player_directions.backward - player_directions.forward)
+    };
 }
 
-auto InputManager::poll_player_movement_states() -> const PlayerDirections
+auto InputManager::poll_player_movement_states() -> PlayerDirections
 {
     PlayerDirections player_directions;
     player_directions.forward = get_key_state(InputManager::controls.walk_forward).is_pressed;

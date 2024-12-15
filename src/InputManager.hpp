@@ -40,10 +40,10 @@ public:
     // clang-format on
 
     auto get_key_state(SDL_Scancode key_code) -> KeyState&;
-    auto set_key_state(SDL_Scancode key_code, bool state) -> void;
-    auto get_player_movement_vector() -> const Vector3d;
+    auto update_key_state(SDL_Scancode key_code, bool state) -> void;
+    auto get_player_movement_vector() -> Vector3f;
 
 private:
     std::unordered_map<SDL_Scancode, KeyState> key_states_;
-    auto poll_player_movement_states() -> const PlayerDirections;
+    auto poll_player_movement_states() -> PlayerDirections;
 };

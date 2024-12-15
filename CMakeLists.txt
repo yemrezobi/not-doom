@@ -29,7 +29,10 @@ set(SOURCES
     src/Vector3.hpp
     src/Quaternion.hpp
     src/Matrix4x4.hpp
-    src/LoggingManager.hpp          src/LoggingManager.cpp
+    src/Mesh.hpp
+    src/MeshComponent.hpp
+    src/Logger.hpp                  src/Logger.cpp
+    src/Shader.hpp                  src/Shader.cpp
 )
 
 target_sources(${PROJECT_NAME}
@@ -115,13 +118,19 @@ target_include_directories(${PROJECT_NAME}
         src
 )
 
-find_package(SDL2 REQUIRED CONFIG) 
+find_package(SDL2 REQUIRED CONFIG)
 find_package(SDL2_image REQUIRED CONFIG)
-include_directories(${SDL2_INCLUDE_DIRS} SYSTEM)
+#include_directories(${SDL2_INCLUDE_DIRS} SYSTEM)
+find_package(GLEW REQUIRED)
+
+get_target_property(glew_includes GLEW::glew INTERFACE_INCLUDE_DIRECTORIES)
+include_directories(SYSTEM "${glew_includes}" ) # visual studio intellisense doesnt find headers if not directly included
+
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         SDL2::SDL2
         SDL2_image::SDL2_image
+        GLEW::glew
 )
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD

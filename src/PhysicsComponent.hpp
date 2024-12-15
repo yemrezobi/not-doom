@@ -3,9 +3,9 @@
 #include "Vector3.hpp"
 
 struct PhysicsComponent {
-    static constexpr double k_gravity = 0.1;
+    static constexpr float k_gravity = 0.1f;
     int entity_id;
-    Vector3d velocity;
-    Vector3d acceleration;
+    Vector3f velocity;
+    Vector3f acceleration;
     bool is_affected_by_gravity;
 };

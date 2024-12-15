@@ -1,13 +1,14 @@
 #pragma once
 
-#include <memory>
+#include <array>
 
+#include <GL/glew.h>
 #include <SDL_events.h>
 #include <SDL_render.h>
 
 #include "Game.hpp"
-#include "LoggingManager.hpp"
-#include "Vector2.hpp"
+#include "Logger.hpp"
+#include "Mesh.hpp"
 
 class Doom : public Game {
 public:
@@ -22,13 +23,12 @@ private:
         double y;
     } camera_angles_;
     double player_movement_speed;
-    LoggingManager logger_;
-    struct TesselationResult {
-        const std::unique_ptr<SDL_Vertex[]> vertices;
-        const int vertices_length;
-        const std::unique_ptr<int[]> indices;
-        const int indices_length;
-    };
+    GLuint shader_program_;
+    GLuint vao_;
+    GLuint vbo_;
+    GLuint cbo_;
+    GLuint ibo_;
+    std::array<float, 16> perspective_matrix_;
 
     auto setup() -> void override;
     auto handle_event_window(const SDL_WindowEvent& event) -> void override;

@@ -1,15 +1,59 @@
 #pragma once
 
+// Windows.h #defines pollute variable names used in Matrix4x4.hpp
+#undef near
+#undef far
+
 #include <array>
 #include <format>
 #include <numbers>
 
+#include "TransformComponent.hpp"
 #include "Quaternion.hpp"
 
 template<std::floating_point T>
 class Matrix4x4 {
 public:
     std::array<T, 16> data;
+
+    // factory functions instead of constructors so type remains aggregate
+    // assumes normalized q
+    auto static from_quaternion(const Quaternion<T>& q) -> Matrix4x4
+    {
+        return {
+            1 - 2 * q.y * q.y - 2 * q.z * q.z, 2 * q.x * q.y - 2 * q.w * q.z, 2 * q.x * q.z + 2 * q.w * q.y, 0,
+            2 * q.x * q.y + 2 * q.w * q.z, 1 - 2 * q.x * q.x - 2 * q.z * q.z, 2 * q.y * q.z - 2 * q.w * q.x, 0,
+            2 * q.x * q.z - 2 * q.w * q.y, 2 * q.y * q.z + 2 * q.w * q.x, 1 - 2 * q.x * q.x - 2 * q.y * q.y, 0,
+            0, 0, 0, 1
+        };
+    }
+
+    auto static from_transform(const TransformComponent& transform) -> Matrix4x4
+    {
+        const Matrix4x4<T> scale_translation{
+            transform.scale.x, 0, 0, transform.position.x,
+            0, transform.scale.y, 0, transform.position.y,
+            0, 0, transform.scale.z, transform.position.z,
+            0, 0, 0, 1
+        };
+        return Matrix4x4::from_quaternion(transform.rotation) * scale_translation;
+        /*
+        const Matrix4x4<T> scale{
+            transform.scale.x, 0, 0, 0,
+            0, transform.scale.y, 0, 0,
+            0, 0, transform.scale.z, 0,
+            0, 0, 0, 1
+        };
+        const Matrix4x4<T> rotation = Matrix4x4::from_quaternion(transform.rotation);
+        const Matrix4x4<T> translation{
+            1, 0, 0, transform.position.x,
+            0, 1, 0, transform.position.y,
+            0, 0, 1, transform.position.z,
+            0, 0, 0, 1
+        };
+        return translation * (rotation * scale);
+        */
+    }
 
     auto operator[](const size_t index) -> T&
     {
@@ -18,53 +62,26 @@ public:
 
     auto static constexpr identity() -> Matrix4x4<T>
     {
-        return {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
-    }
-
-    // assumes normalized q
-    auto static constexpr from_quaternion(const Quaternion<T>& q) -> Matrix4x4<T>
-    {
-        // clang-format off
         return {
-            1 - 2 * q.y * q.y - 2 * q.z * q.z, 2 * q.x * q.y - 2 * q.w * q.z    , 2 * q.x * q.z + 2 * q.w * q.y    , 0,
-            2 * q.x * q.y + 2 * q.w * q.z    , 1 - 2 * q.x * q.x - 2 * q.z * q.z, 2 * q.y * q.z - 2 * q.w * q.x    , 0,
-            2 * q.x * q.z - 2 * q.w * q.y    , 2 * q.y * q.z + 2 * q.w * q.x    , 1 - 2 * q.x * q.x - 2 * q.y * q.y, 0,
-            0                                , 0                                , 0                                , 1
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
         };
-        // clang-format on
     }
 
-    //auto static to_ndc(const)
-
-//    auto static perspective_matrix(const double near, const double far, const double aspect_ratio, const double fov) -> Matrix4x4<T>
-//    {
-//        const double inv_tan = std::tan(fov * (std::numbers::pi / 180) / 2);
-//        const double temp = -1 / (far - near);
-//        // clang-format off
-//        return {
-//            inv_tan * (1 / aspect_ratio), 0, 0, 0,
-//            0 , inv_tan, 0, 0,
-//            0 , 0, (far + near) * temp, (2 * far * near) * temp,
-//            0 , 0, -1, 0
-//        };
-//        // clang-format on
-//    }
-//
-    auto static perspective_matrix(const double near, const double far, const double aspect_ratio, const double fov) -> Matrix4x4<T>
+    //vertical fov
+    auto static perspective_matrix(const T near, const T far, const T aspect_ratio, const T fov) -> Matrix4x4<T>
     {
-        (void)near;
-        (void)far;
-        (void)aspect_ratio;
-        (void)fov;
         //TODO: division by zero
-        const double inv_tan = std::tan(fov * (std::numbers::pi / 180) / 2);
-        const double temp = 1 / (far - near);
+        const T inv_tan = 1 / std::tan(fov * (std::numbers::pi / 180) / 2);
+        const T temp = 1 / (far - near);
         // clang-format off
         return {
-            400 * inv_tan / aspect_ratio, 0, 0, 0,
-            0, 400 * inv_tan, 0, 0,
-            0, 0, (far + near) * temp, (2 * far * near) * temp,
-            0, 0, 1, 0
+            inv_tan / aspect_ratio, 0, 0, 0,
+            0, inv_tan, 0, 0,
+            0, 0, -(far + near) * temp, -(2 * far * near) * temp,
+            0, 0, -1, 0
         };
         // clang-format on
     }
@@ -88,6 +105,16 @@ public:
             }
         }
         return result;
+    }
+
+    auto transpose() const -> Matrix4x4<T>
+    {
+        return Matrix4x4{
+            data[0], data[4], data[8],  data[12],
+            data[1], data[5], data[9],  data[13],
+            data[2], data[6], data[10], data[14],
+            data[3], data[7], data[11], data[15]
+        };
     }
 
     // operations with scalars

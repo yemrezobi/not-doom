@@ -25,8 +25,7 @@ public:
     auto remove(T data) -> void
     {
         for (int i = 0; i < size; i++) {
-            if (array[i] == data) {
-                [[unlikely]]
+            if (array[i] == data) [[unlikely]] {
                 array[i] == array[size--];
                 break;
             }

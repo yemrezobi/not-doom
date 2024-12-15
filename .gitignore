@@ -3,3 +3,5 @@ build/*
 assets/*
 Session.vim
 .vs/
+CMakeSettings.json
+compile_commands.json

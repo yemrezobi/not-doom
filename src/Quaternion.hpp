@@ -13,6 +13,8 @@ public:
     T y;
     T z;
 
+    //TODO: make default init return identity
+    //is 0 quaternion used anywhere?
     Quaternion() noexcept : w{0}, x{0}, y{0}, z{0}
     {
     }
@@ -32,8 +34,7 @@ public:
         const T sine = std::sin(angle / 2);
         const T cosine = std::cos(angle / 2);
 
-        const Quaternion<T> temp = {cosine, axis.x * sine, axis.y * sine, axis.z * sine};
-        return temp.normalized();
+        return Quaternion<T>{cosine, axis.x * sine, axis.y * sine, axis.z * sine}.normalized();
     }
 
     auto normalized() const -> Quaternion<T>

@@ -52,6 +52,11 @@ public:
         }
     }
 
+    auto clear() -> void
+    {
+        component_vector_.clear();
+    }
+
 private:
     std::vector<T> component_vector_;
 };
